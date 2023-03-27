@@ -22,4 +22,17 @@ public class Database {
     public List<Book> getBooks(){
         return books;
     }
+
+    public boolean editBook(Book book, int id){
+        Book bookFromDb = this.books.get(id);
+        if(!(bookFromDb.equals(null))){
+            bookFromDb.setAuthor(book.getAuthor());
+            bookFromDb.setTitle(book.getTitle());
+            bookFromDb.setIsbn(book.getIsbn());
+            bookFromDb.setPrice(book.getPrice());
+
+            return true;
+        }
+        return false;
+    }
 }

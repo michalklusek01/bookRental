@@ -25,4 +25,10 @@ public class CommonController {
         int parseId = Integer.parseInt(id);
         return database.books.get(parseId);
     }
+
+    @PutMapping("/api/books/{id}")
+    public boolean updateBook(@PathVariable String id, @RequestBody Book updateBook){
+        int parseId = Integer.parseInt(id);
+        return this.database.editBook(updateBook, parseId);
+    }
 }
