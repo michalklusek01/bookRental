@@ -11,13 +11,39 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.bind.annotation.GetMapping;
 
-import java.util.Arrays;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
 
 @Configuration
 @EnableWebSecurity
 public class SpringSecurityConfiguration {
+
+    // deklaracja pola do przechowywania ścieżki do pliku z logami
+    private final String pathToLogsFile = "logs.txt";
+
+    // metoda do zapisywania logów zalogowanych użytkowników
+    public void logLoggedInUser(UserDetails userDetails) {
+        LocalDateTime localDateTime = LocalDateTime.now();
+        StringBuilder sb = new StringBuilder();
+        sb.append("User logged in; ")
+                .append(userDetails.getUsername())
+                .append("; ")
+                .append(localDateTime)
+                .append(System.lineSeparator());
+        String log = sb.toString();
+
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(pathToLogsFile, true));
+            writer.append(log);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Bean
     public PasswordEncoder getBCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
@@ -26,7 +52,7 @@ public class SpringSecurityConfiguration {
     @Bean
     public InMemoryUserDetailsManager get() {
         UserDetails user = User.withUsername("user")
-                .password(getBCryptPasswordEncoder().encode("user123"))
+                .password(getBCryptPasswordEncoder().encode("user"))
                 .roles("USER")
                 .build();
         UserDetails admin = User.withUsername("admin")
@@ -35,6 +61,7 @@ public class SpringSecurityConfiguration {
                 .build();
         return new InMemoryUserDetailsManager(user, admin);
     }
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -47,8 +74,12 @@ public class SpringSecurityConfiguration {
                         .anyRequest().authenticated()
                 )
                 .formLogin((form) -> form
-                        .loginPage("/login")
                         .defaultSuccessUrl("/api/books")
+                        .successHandler((request, response, authentication) -> {
+                            // po udanym logowaniu wywołujemy metodę logLoggedInUser, aby zapisać log użytkownika do pliku
+                            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+                            logLoggedInUser(userDetails);
+                        })
                         .permitAll()
                 )
                 .logout((logout) -> logout.permitAll());
