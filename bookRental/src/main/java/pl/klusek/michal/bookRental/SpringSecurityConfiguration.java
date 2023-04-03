@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 public class SpringSecurityConfiguration {
 
     // deklaracja pola do przechowywania ścieżki do pliku z logami
-    private final String pathToLogsFile = "logs.txt";
+    private final String pathToLogsFile = "logsFromAuth.txt";
 
     // metoda do zapisywania logów zalogowanych użytkowników
     public void logLoggedInUser(UserDetails userDetails) {

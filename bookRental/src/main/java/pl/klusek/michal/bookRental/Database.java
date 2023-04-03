@@ -3,6 +3,7 @@ package pl.klusek.michal.bookRental;
 import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class Database {
@@ -33,5 +34,10 @@ public class Database {
             return true;
         }
         return false;
+    }
+
+    public List<Book> getBooksByAuthor(String author){
+        List<Book> booksFromDb = new ArrayList<>();
+        return booksFromDb = this.books.stream().filter(book -> book.getAuthor().contains(author)).collect(Collectors.toList());
     }
 }
